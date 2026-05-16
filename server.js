@@ -131,6 +131,10 @@ app.get('/', (req, res) => {
   res.send('<h1>📡 Phone2 Server is Online!</h1><p>Relay Status: Active</p>');
 });
 
+app.get('/healthz', (req, res) => {
+  res.status(200).send('OK');
+});
+
 server.listen(PORT, '0.0.0.0', async () => {
   console.log(`\n🚀 ==========================================`);
   console.log(`📡 SERVER IS RUNNING ON PORT: ${PORT}`);
