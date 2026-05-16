@@ -7,8 +7,12 @@ import {
   Battery, Wifi, Clock, MapPin, Camera, Video, ArrowUpRight, Plus, Activity
 } from 'lucide-react';
 
-const SERVER_URL = 'http://localhost:3000';
-const socket = io(SERVER_URL);
+// Use current window location for production or localhost for dev
+const SERVER_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin;
+const socket = io(SERVER_URL, {
+  transports: ['websocket'],
+  reconnection: true
+});
 
 // Marker fix
 delete L.Icon.Default.prototype._getIconUrl;
