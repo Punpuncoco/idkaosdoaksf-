@@ -51,10 +51,7 @@ let latestDeviceStatus = {
   networkState: 'disconnected',
   uptime: null,
   lastUpdated: null,
-  location: {
-    latitude: 13.7563, // Default (Bangkok)
-    longitude: 100.5018,
-  }
+  location: null
 };
 
 let uploadedFiles = [];
