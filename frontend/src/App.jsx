@@ -47,7 +47,7 @@ function App() {
     networkState: 'disconnected',
     uptime: null,
     lastUpdated: null,
-    location: { latitude: 13.7563, longitude: 100.5018 },
+    location: null,
   });
   const [isConnected, setIsConnected] = useState(false);
   const [mediaList, setMediaList] = useState([]);
@@ -89,7 +89,7 @@ function App() {
     return `${h}h ${m}m`;
   };
 
-  const mapCenter = [status.location?.latitude || 13.7563, status.location?.longitude || 100.5018];
+  // Removed fake mapCenter logic
 
   return (
     <div className="app-container">
@@ -130,7 +130,7 @@ function App() {
         </div>
         <div className="status-item">
           <span className="status-label">Location</span>
-          <span className="status-value">{mapCenter[0].toFixed(3)}, {mapCenter[1].toFixed(3)}</span>
+          <span className="status-value">{status.location ? `${status.location.latitude.toFixed(3)}, ${status.location.longitude.toFixed(3)}` : '--'}</span>
           <span style={{fontSize: '0.7rem', color: '#666', marginTop: '4px'}}>Coordinates</span>
         </div>
       </div>
@@ -139,11 +139,17 @@ function App() {
       <main className="main-layout">
         <div className="map-panel">
           <div className="map-container">
-            <MapContainer center={mapCenter} zoom={15} style={{ height: '100%', width: '100%' }} zoomControl={false}>
-              <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
-              <Marker position={mapCenter} icon={phoneIcon} />
-              <MapUpdater center={mapCenter} />
-            </MapContainer>
+            {status.location ? (
+              <MapContainer center={[status.location.latitude, status.location.longitude]} zoom={15} style={{ height: '100%', width: '100%' }} zoomControl={false}>
+                <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+                <Marker position={[status.location.latitude, status.location.longitude]} icon={phoneIcon} />
+                <MapUpdater center={[status.location.latitude, status.location.longitude]} />
+              </MapContainer>
+            ) : (
+              <div style={{display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: '#666', background: '#111'}}>
+                Waiting for GPS signal...
+              </div>
+            )}
           </div>
         </div>
 
