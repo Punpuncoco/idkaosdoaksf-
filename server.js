@@ -59,6 +59,10 @@ let latestDeviceStatus = {
 
 let uploadedFiles = [];
 
+// Serve static frontend
+const frontendPath = path.join(__dirname, 'frontend/dist');
+app.use(express.static(frontendPath));
+
 // API: Discovery/Ping
 app.get('/api/ping', (req, res) => {
   res.json({ name: 'phone2-server', status: 'online' });
@@ -126,9 +130,13 @@ const axios = require('axios');
 const PORT = process.env.PORT || 3000;
 const SYNC_KEY = process.env.SYNC_KEY || 'phone2-sync-c18e8980263c4db4a6b8c141a2563045';
 
-// Root route for health check (so Render knows it's alive)
+// Root route: Serve frontend or simple health check
 app.get('/', (req, res) => {
-  res.send('<h1>📡 Phone2 Server is Online!</h1><p>Relay Status: Active</p>');
+  if (fs.existsSync(path.join(frontendPath, 'index.html'))) {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  } else {
+    res.send('<h1>📡 Phone2 Server is Online!</h1><p>Frontend not found. Please build the dashboard.</p>');
+  }
 });
 
 app.get('/healthz', (req, res) => {
@@ -139,18 +147,14 @@ server.listen(PORT, '0.0.0.0', async () => {
   console.log(`\n🚀 ==========================================`);
   console.log(`📡 SERVER IS RUNNING ON PORT: ${PORT}`);
   
-  // Only sync to cloud relay if we have a public URL (Render provides its own URL)
-  // On Render, we can use the RENDER_EXTERNAL_URL env var
-  const publicUrl = process.env.RENDER_EXTERNAL_URL;
-  if (publicUrl) {
-    try {
-      await axios.post(`https://api.keyvalue.xyz/${SYNC_KEY}/serverUrl`, publicUrl);
-      console.log(`✨ CLOUD SYNC: Published ${publicUrl} to relay!`);
-    } catch (err) {
-      console.log('⚠️ Cloud Sync Error:', err.message);
-    }
-  } else {
-    console.log(`🏠 Running locally or missing RENDER_EXTERNAL_URL.`);
+  // Use the specific Render URL for this service
+  const publicUrl = 'https://my-device-monitor.onrender.com';
+  
+  try {
+    await axios.post(`https://api.keyvalue.xyz/${SYNC_KEY}/serverUrl`, publicUrl);
+    console.log(`✨ CLOUD SYNC: Published ${publicUrl} to relay!`);
+  } catch (err) {
+    console.log('⚠️ Cloud Sync Error:', err.message);
   }
   
   console.log(`==========================================\n`);
